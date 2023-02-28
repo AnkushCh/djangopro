@@ -33,3 +33,7 @@ run the django server:
 python manage.py runserver
 ```
 
+create JWT token for the user
+using api : ``` http://127.0.0.1:8000/api/token/ ```
+
+use the **access token** from here the rest of the apis 
