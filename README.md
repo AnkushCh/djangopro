@@ -17,6 +17,16 @@ create the supper user:
 ```bash
 python manage.py createsuperuser
 ```
+
+create migrations before running project
+```bash
+python manage.py makemigrations
+```
+apply the migrations to DB;
+```bash
+python manage.py migrate
+```
+
 create user for Employee, Manager, Client
 
 
