@@ -2,7 +2,8 @@
 
 ## Instructions to install and run this project
 
-Requirements
+Requirements:
+
 python version= 3.8.x
 
 Open project folder in any IDE ex: vscode
