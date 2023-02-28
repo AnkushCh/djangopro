@@ -1,11 +1,7 @@
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .permissions import IsClient, IsManager, IsEmployee, CanCreateTask, CanDeleteTask, CanAssignTask,CanCompleteTask,CanEditTask
-# @api_view(['GET'])
-# @authentication_classes([JWTAuthentication])
-# @permission_classes([IsAuthenticated])
-# def protected_view(request):
+from .permissions import IsClient, IsManager, IsEmployee, CanCreateTask, CanDeleteTask, CanAssignTask,CanCompleteTask
 
 from rest_framework.response import Response
 from rest_framework import generics, status
@@ -15,7 +11,7 @@ from .serializers import TaskSerializer
 
 class TaskList(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated, CanCreateTask | CanDeleteTask | CanAssignTask | CanCompleteTask]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -29,8 +25,7 @@ class TaskList(generics.ListCreateAPIView):
 
 class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
-    # permission_classes = [IsAuthenticated, CanDeleteTask | CanAssignTask | CanCompleteTask]
-    permission_classes=[AllowAny]
+    permission_classes=[IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -38,99 +33,48 @@ class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
             return Task.objects.all()
         else:
             return Task.objects.filter(created_by=user)
-        
-    def perform_update(self, serializer):
-        instance = serializer.save()
-        if instance.status == 'complete':
-            instance.completed_by = self.request.user
-            instance.save()
 
 class CreateTaskViewSet(generics.GenericAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated,CanCreateTask]
-
-    # def post(self,request):
-    #     serializer = self.serializer_class(data = request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     email = serializer.validated_data['email']
-    #     otp = serializer.validated_data['otp']
-    #     new_password = serializer.validated_data['new_password']
-
-    #     if User.objects.filter(email = email).exists():
-    #         user = User.objects.get(email = email)
-    #         if user.otp == otp:
-    #             user.password = make_password(new_password)
-    #             user.save()
-    #             return Response({"Response":"password updated successfully"})  
-    #         else:
-    #             return Response({"Response":"Otp did not match"})  
-    #     else: 
-    #         return Response({"Error":"email does not exists"})
+    permission_classes = [IsAuthenticated, CanCreateTask, IsClient]
+    queryset = Task.objects.all()
         
-class EditTaskViewSet(generics.GenericAPIView):
+class CompleteTaskViewSet(generics.GenericAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated, CanEditTask]
+    permission_classes = [IsAuthenticated, CanCompleteTask, IsEmployee]
 
     def post(self,request):
         serializer = self.serializer_class(data = request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-        otp = serializer.validated_data['otp']
-        new_password = serializer.validated_data['new_password']
-
-        if User.objects.filter(email = email).exists():
-            user = User.objects.get(email = email)
-            if user.otp == otp:
-                user.password = make_password(new_password)
-                user.save()
-                return Response({"Response":"password updated successfully"})  
-            else:
-                return Response({"Response":"Otp did not match"})  
-        else: 
-            return Response({"Error":"email does not exists"})
+        title = serializer.validated_data['title']
+        task = Task.objects.get(title = title)
+        task.status = 'Complete'
+        task.save()
+        return Response({"Response":"Task updated successfully"})
 
 class DeleteTaskViewSet(generics.GenericAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated, CanDeleteTask]
+    permission_classes = [IsAuthenticated, CanDeleteTask, IsManager]
 
     def post(self,request):
         serializer = self.serializer_class(data = request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-        otp = serializer.validated_data['otp']
-        new_password = serializer.validated_data['new_password']
+        title = serializer.validated_data['title']
+        Task.objects.get(title = title).delete()
+        
+        return Response({"Response":"Task deleted successfully"})    
 
-        if User.objects.filter(email = email).exists():
-            user = User.objects.get(email = email)
-            if user.otp == otp:
-                user.password = make_password(new_password)
-                user.save()
-                return Response({"Response":"password updated successfully"})  
-            else:
-                return Response({"Response":"Otp did not match"})  
-        else: 
-            return Response({"Error":"email does not exists"})
-    
-
-class CompleteTaskViewSet(generics.GenericAPIView):
+class AssignTaskViewSet(generics.GenericAPIView):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated, CanCompleteTask]
+    permission_classes = [IsAuthenticated, CanAssignTask, IsManager]
 
     def post(self,request):
         serializer = self.serializer_class(data = request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-        otp = serializer.validated_data['otp']
-        new_password = serializer.validated_data['new_password']
+        title = serializer.validated_data['title']
+        assigned = serializer.validated_data['assignee_name']
+        task = Task.objects.get(title = title)
+        task.assigned = assigned
+        task.save()
+        return Response({"Response":"Task assigned successfully"})    
 
-        if User.objects.filter(email = email).exists():
-            user = User.objects.get(email = email)
-            if user.otp == otp:
-                user.password = make_password(new_password)
-                user.save()
-                return Response({"Response":"password updated successfully"})  
-            else:
-                return Response({"Response":"Otp did not match"})  
-        else: 
-            return Response({"Error":"email does not exists"})
-    

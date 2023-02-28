@@ -37,8 +37,10 @@ class Task(models.Model):
         ('complete', 'Complete'),
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    created_by = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='tasks')
-
+    assigned = models.CharField(max_length=50,null=True,blank=True)
+    
     def __str__(self):
         return self.title
+
+
 

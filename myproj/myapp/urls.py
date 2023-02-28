@@ -1,12 +1,12 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import TaskList, TaskDetail,CreateTaskViewSet,EditTaskViewSet,DeleteTaskViewSet
+from .views import TaskList,CreateTaskViewSet,DeleteTaskViewSet,AssignTaskViewSet,CompleteTaskViewSet
 
 urlpatterns = [
     path('tasks/', TaskList.as_view(), name='task-list'),
-    path('tasks/<int:pk>/', TaskDetail.as_view(), name='task-detail'),
     path('tasks/create', CreateTaskViewSet.as_view(), name='task-create'),
-    path('tasks/edit', EditTaskViewSet.as_view(), name='task-edit'),
+    path('tasks/asign', AssignTaskViewSet.as_view(), name='task-asign'),
+    path('tasks/complete', CompleteTaskViewSet.as_view(), name='task-complete'),
     path('tasks/delete', DeleteTaskViewSet.as_view(), name='task-delete'),
 ]
 
