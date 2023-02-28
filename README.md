@@ -17,6 +17,7 @@ create the supper user:
 ```bash
 python manage.py createsuperuser
 ```
+create user for Employee, Manager, Client
 
 create migrations before running project
 ```bash
@@ -26,9 +27,6 @@ apply the migrations to DB;
 ```bash
 python manage.py migrate
 ```
-
-create user for Employee, Manager, Client
-
 
 run the django server: 
 ```bash
